@@ -4,10 +4,12 @@ class Snake {
   tail = [];
 
   // Velocidade da cobra
-  velX = 5;
-  velY = 5;
+  speed = 5;
 
-  constructor(x, y, size=10) {
+  // Exibe o centro de cada bloco da cobra
+  showCenter = false;
+
+  constructor(x, y, size=10, showCenter=true) {
     const offset = 2;
 
     this.head = [x, y];
@@ -18,8 +20,8 @@ class Snake {
     ];
 
     this.size = size;
-    this.velX = 5;
-    this.velY = 5;
+
+    this.showCenter = showCenter;
   }
 
   grow() {
@@ -27,58 +29,75 @@ class Snake {
 
   }
 
+  moveHorizontal(horizontalSpeed) {
+    const [xHead, yHead] = this.head;
+
+    // Move a cabeça
+    this.head = [xHead + horizontalSpeed, yHead];
+
+    // "Pescoço" da cobra
+    let [xNeck, yNeck] = this.tail[0];
+
+    if(yNeck === yHead) {
+      // Alinha Horizontalmente
+      if(xNeck < xHead) {
+        xNeck += horizontalSpeed;
+      }
+    }else {
+      // Alinha Verticalmente
+      if(yNeck > yHead) {
+        yNeck -= this.speed;
+      }
+    }
+
+    this.tail[0] = [xNeck, yNeck];
+
+    // Resto da cauda
+    for(let i=1; i < this.tail.length; i++) {
+      // Cauda mais distante da cabeça
+      // se alinha à mais próxima dela
+      let [xNextTail, yNextTail] = this.tail[i-1]; // Mais Próxima
+      let [xFarTail , yFarTail ] = this.tail[i]; // Distante
+      
+      // Esta alinhado Verticalmente
+      if(yFarTail === yNextTail) {
+        // Alinha Horizontal, movendo para direita a cauda distante
+        xFarTail += horizontalSpeed;
+      }
+
+      // Ajusta a cauda mais distante
+      this.tail[i] = [xFarTail , yFarTail]
+    }
+  }
+
+  moveVertical(verticalSpeed) {
+    const [xHead, yHead] = this.head;
+
+    // Move a cabeça
+    this.head = [xHead, yHead + verticalSpeed];
+
+    // "Pescoço" da cobra
+    let [xNeck, yNeck] = this.tail[0];
+
+    // Pescoço alinhado com a cabeça
+    if(xNeck === xHead) {
+      
+    }
+
+  }
+
   move(direction) {
     // Move a cabeça da cobra e o corpo da cobra
     // para uma nova coordenada
-    const [x, y] = this.head;
-
     switch(direction) {
       case "RIGHT":
-        this.head = [x + this.velX, y];
-
-        // Cauda acompanha movimento da cabeça
-        for(let i=0; i < this.tail.length; i++) {
-          let [xTail, yTail] = this.tail[i];
-          if(yTail > y) {
-            // Faz a cauda subir
-            yTail -= this.velY;
-          }else if(yTail === y) {
-            xTail += this.velX;
-          }
-          this.tail[i] = [xTail, yTail];
-        }
+        this.moveHorizontal(this.speed);
         break;
-
+      case "LEFT":
+        this.moveHorizontal(-this.speed);
+        break;
       case "UP":
-        this.head = [x, y - this.velY];
-
-        // Cauda acompanha movimento da cabeça
-        for(let i=0; i < this.tail.length; i++) {
-          let [xTail, yTail] = this.tail[i];
-          if(xTail < x) {
-            xTail += this.velX;
-          }else if(xTail === x) {
-            // Faz a cauda subir
-            yTail -= this.velY;
-          }
-          this.tail[i] = [xTail, yTail];
-        }
-        break;
-      
-      case "DOWN":
-        this.head = [x, y + this.velY];
-
-        // Cauda acompanha movimento da cabeça
-        for(let i=0; i < this.tail.length; i++) {
-          let [xTail, yTail] = this.tail[i];
-          if(xTail < x) {
-            xTail += this.velX;
-          }else if(xTail === x) {
-            // Faz a cauda subir
-            yTail += this.velY;
-          }
-          this.tail[i] = [xTail, yTail];
-        }
+        this.moveVertical(-this.speed);
         break;
     }
   }
@@ -96,6 +115,13 @@ class Snake {
       // Desenha a cauda
       const [xTail, yTail] = this.tail[i];
       rect(xTail, yTail, this.size, this.size);
+      
+      // Exibe o centro de cada bloco da cauda
+      if(this.showCenter) {
+        const radius = parseInt(this.size / 2);
+        fill([255, 0, 0]);
+        circle(xTail + radius, yTail + radius, 2);
+      }
     }
   }
 }
