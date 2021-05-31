@@ -26,7 +26,8 @@ class Snake {
 
   grow() {
     // Faz a cobra crescer adicionando um bloco ao final da cauda
-
+    const [x, y] = this.head;
+    this.tail.push([x - ((this.tail.length+1) * this.size), y])
   }
 
   moveHorizontal(horizontalSpeed) {
@@ -40,13 +41,13 @@ class Snake {
 
     if(yNeck === yHead) {
       // Alinha Horizontalmente
-      if(xNeck < xHead) {
-        xNeck += horizontalSpeed;
-      }
+      xNeck += horizontalSpeed;
     }else {
       // Alinha Verticalmente
       if(yNeck > yHead) {
         yNeck -= this.speed;
+      }else {
+        yNeck += this.speed;
       }
     }
 
@@ -63,10 +64,17 @@ class Snake {
       if(yFarTail === yNextTail) {
         // Alinha Horizontal, movendo para direita a cauda distante
         xFarTail += horizontalSpeed;
+      }else {
+        // Alinha Verticalmente
+        if(yFarTail > yNextTail) {
+          yFarTail -= this.speed;
+        }else {
+          yFarTail += this.speed;
+        }
       }
 
       // Ajusta a cauda mais distante
-      this.tail[i] = [xFarTail , yFarTail]
+      this.tail[i] = [xFarTail, yFarTail]
     }
   }
 
@@ -81,7 +89,36 @@ class Snake {
 
     // Pescoço alinhado com a cabeça
     if(xNeck === xHead) {
-      
+      yNeck += verticalSpeed;
+    }else {
+      if(xNeck < xHead) {
+        xNeck += this.speed;
+      }else{
+        xNeck -= this.speed;
+      }
+    }
+
+    this.tail[0] = [xNeck, yNeck];
+
+    // Resto da cauda
+    for(let i=1; i < this.tail.length; i++) {
+      // Cauda mais distante da cabeça
+      // se alinha à mais próxima dela
+      let [xNextTail, yNextTail] = this.tail[i-1]; // Mais Próxima
+      let [xFarTail , yFarTail ] = this.tail[i]; // Distante
+
+      if(xFarTail === xNextTail){
+        yFarTail += verticalSpeed;
+      }else {
+        if(xFarTail < xNextTail) {
+          xFarTail += this.speed;
+        }else {
+          xFarTail -= this.speed;
+        }
+      }
+
+      // Ajusta a cauda mais distante
+      this.tail[i] = [xFarTail, yFarTail];
     }
 
   }
@@ -98,6 +135,9 @@ class Snake {
         break;
       case "UP":
         this.moveVertical(-this.speed);
+        break;
+      case "DOWN":
+        this.moveVertical(this.speed);
         break;
     }
   }

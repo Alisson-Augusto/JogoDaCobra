@@ -18,7 +18,7 @@ let direction = '';
 
 function setup() {
   createCanvas(WIDTH, HEIGHT);
-  frameRate(1);
+  frameRate(30);
 }
 
 function generateFood(MAX_FOOD) {
@@ -57,7 +57,8 @@ function foodCollision(x, y) {
         // Remove Comida
         console.log("Removendo Comida!");
         food.splice(i, 1);
-        pontos++;
+        pontos += 5;
+        personagem.grow();
         return true;
       }
   }
