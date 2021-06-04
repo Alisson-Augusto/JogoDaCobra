@@ -26,8 +26,25 @@ class Snake {
 
   grow() {
     // Faz a cobra crescer adicionando um bloco ao final da cauda
-    const [x, y] = this.head;
-    this.tail.push([x - ((this.tail.length+1) * this.size), y])
+    const [x, y] = this.tail[ this.tail.length-1 ];
+    let [xNewTail, yNewTail] = [x, y];
+
+    if(this.head[0] > x) {
+      // Cabeça está a direita da cauda
+      xNewTail -= this.size;
+    }else if(this.head[0] < x){
+      // Cabeça está a esquerda da cauda
+      xNewTail += this.size;
+    }else {
+      // cabeça está alinhada verticalmente com a cauda
+      if(yNewTail < this.head[1]) {
+        // Cabeça em baixo da cauda
+        yNewTail -= this.size;
+      }else {
+        yNewTail += this.size;
+      }
+    }
+    this.tail.push([xNewTail, yNewTail]);
   }
 
   moveHorizontal(horizontalSpeed) {
