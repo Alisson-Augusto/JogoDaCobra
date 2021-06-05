@@ -4,12 +4,12 @@ class Snake {
   tail = [];
 
   // Velocidade da cobra
-  speed = 5;
+  speed;
 
   // Exibe o centro de cada bloco da cobra
   showCenter = false;
 
-  constructor(x, y, size=10, showCenter=true) {
+  constructor(x, y, size=10, showCenter=false) {
     const offset = 2;
 
     this.head = [x, y];
@@ -20,141 +20,60 @@ class Snake {
     ];
 
     this.size = size;
-
+    this.speed = size;
     this.showCenter = showCenter;
   }
 
   grow() {
     // Faz a cobra crescer adicionando um bloco ao final da cauda
-    const [x, y] = this.tail[ this.tail.length-1 ];
-    let [xNewTail, yNewTail] = [x, y];
+    const [xLastTail, yLastTail] = this.tail[ this.tail.length-1 ];
+    let [xNewTail, yNewTail] = [xLastTail, yLastTail];
 
-    if(this.head[0] > x) {
-      // Cabeça está a direita da cauda
-      xNewTail -= this.size;
-    }else if(this.head[0] < x){
-      // Cabeça está a esquerda da cauda
-      xNewTail += this.size;
-    }else {
-      // cabeça está alinhada verticalmente com a cauda
-      if(yNewTail < this.head[1]) {
-        // Cabeça em baixo da cauda
-        yNewTail -= this.size;
-      }else {
-        yNewTail += this.size;
-      }
-    }
     this.tail.push([xNewTail, yNewTail]);
   }
 
-  moveHorizontal(horizontalSpeed) {
+  move(horizontalSpeed, verticalSpeed = 0) {
     const [xHead, yHead] = this.head;
 
     // Move a cabeça
-    this.head = [xHead + horizontalSpeed, yHead];
+    this.head = [xHead + horizontalSpeed, yHead + verticalSpeed];
 
-    // "Pescoço" da cobra
-    let [xNeck, yNeck] = this.tail[0];
-
-    if(yNeck === yHead) {
-      // Alinha Horizontalmente
-      xNeck += horizontalSpeed;
-    }else {
-      // Alinha Verticalmente
-      if(yNeck > yHead) {
-        yNeck -= this.speed;
+    // Valor anterior de x e y, antes de modifica-los
+    let xPrevious, yPrevious;
+    for(let i=0; i < this.tail.length; i++) {
+      if(i === 0) {
+        // "Pescoço" da cobra
+        const [xNeck, yNeck] = this.tail[0];
+        xPrevious = xNeck;
+        yPrevious = yNeck;
+        // Move pescoço para a posição anterior da cabeça
+        this.tail[0] = [xHead, yHead];
       }else {
-        yNeck += this.speed;
-      }
-    }
-
-    this.tail[0] = [xNeck, yNeck];
-
-    // Resto da cauda
-    for(let i=1; i < this.tail.length; i++) {
-      // Cauda mais distante da cabeça
-      // se alinha à mais próxima dela
-      let [xNextTail, yNextTail] = this.tail[i-1]; // Mais Próxima
-      let [xFarTail , yFarTail ] = this.tail[i]; // Distante
-      
-      // Esta alinhado Verticalmente
-      if(yFarTail === yNextTail) {
-        // Alinha Horizontal, movendo para direita a cauda distante
-        xFarTail += horizontalSpeed;
-      }else {
-        // Alinha Verticalmente
-        if(yFarTail > yNextTail) {
-          yFarTail -= this.speed;
-        }else {
-          yFarTail += this.speed;
-        }
+        let [xTemp, yTemp] = this.tail[i];
+        this.tail[i] = [xPrevious, yPrevious];
+        xPrevious = xTemp;
+        yPrevious = yTemp;
       }
 
-      // Ajusta a cauda mais distante
-      this.tail[i] = [xFarTail, yFarTail]
-    }
-  }
-
-  moveVertical(verticalSpeed) {
-    const [xHead, yHead] = this.head;
-
-    // Move a cabeça
-    this.head = [xHead, yHead + verticalSpeed];
-
-    // "Pescoço" da cobra
-    let [xNeck, yNeck] = this.tail[0];
-
-    // Pescoço alinhado com a cabeça
-    if(xNeck === xHead) {
-      yNeck += verticalSpeed;
-    }else {
-      if(xNeck < xHead) {
-        xNeck += this.speed;
-      }else{
-        xNeck -= this.speed;
-      }
-    }
-
-    this.tail[0] = [xNeck, yNeck];
-
-    // Resto da cauda
-    for(let i=1; i < this.tail.length; i++) {
-      // Cauda mais distante da cabeça
-      // se alinha à mais próxima dela
-      let [xNextTail, yNextTail] = this.tail[i-1]; // Mais Próxima
-      let [xFarTail , yFarTail ] = this.tail[i]; // Distante
-
-      if(xFarTail === xNextTail){
-        yFarTail += verticalSpeed;
-      }else {
-        if(xFarTail < xNextTail) {
-          xFarTail += this.speed;
-        }else {
-          xFarTail -= this.speed;
-        }
-      }
-
-      // Ajusta a cauda mais distante
-      this.tail[i] = [xFarTail, yFarTail];
     }
 
   }
 
-  move(direction) {
+  moveDirection(direction) {
     // Move a cabeça da cobra e o corpo da cobra
     // para uma nova coordenada
     switch(direction) {
       case "RIGHT":
-        this.moveHorizontal(this.speed);
+        this.move(this.speed);
         break;
       case "LEFT":
-        this.moveHorizontal(-this.speed);
+        this.move(-this.speed);
         break;
       case "UP":
-        this.moveVertical(-this.speed);
+        this.move(0, -this.speed);
         break;
       case "DOWN":
-        this.moveVertical(this.speed);
+        this.move(0, this.speed);
         break;
     }
   }

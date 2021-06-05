@@ -10,15 +10,22 @@ let personagem = new Snake(100, 100, BLOCK_SIZE);
 
 
 // Velocidade da cobra
-velX = 5;
-velY = 5;
+velX = BLOCK_SIZE;
+velY = BLOCK_SIZE;
 
 // Informa direção que a cobra está seguindo
 let direction = '';
 
+// Executa antes do setup() e do draw()
+function preload() {
+  font = loadFont('fonts/RobotoMono-VariableFont_wght.ttf');
+}
+
 function setup() {
   createCanvas(WIDTH, HEIGHT);
   frameRate(30);
+  textFont(font);
+  textSize(24);
 }
 
 function generateFood(MAX_FOOD) {
@@ -28,8 +35,8 @@ function generateFood(MAX_FOOD) {
   let count = 0;
   while(count < MAX_FOOD) {
     // Gera uma coordenada para a comida
-    let x = Math.floor((Math.random() * WIDTH ) + BLOCK_SIZE + 20);
-    let y = Math.floor((Math.random() * HEIGHT) + BLOCK_SIZE + 20);
+    let x = Math.floor((Math.random() * (WIDTH  - BLOCK_SIZE)) + BLOCK_SIZE);
+    let y = Math.floor((Math.random() * (HEIGHT - BLOCK_SIZE)) + BLOCK_SIZE);
     
     generatedFood.push([x, y]);
     count++;
@@ -84,25 +91,25 @@ function move() {
   if(direction === 'UP') {
     if(!collision(x, y - velY)) {
       foodCollision(x, y - velY);
-      personagem.move(direction);
+      personagem.moveDirection(direction);
     }
   }
   else if(direction === 'DOWN') {
     if(!collision(x, y + velY)) {
       foodCollision(x, y + velY);
-      personagem.move(direction);
+      personagem.moveDirection(direction);
     }
   }
   else if(direction === 'LEFT') {
     if(!collision(x - velX, y)) {
       foodCollision(x - velX, y);
-      personagem.move(direction);
+      personagem.moveDirection(direction);
     }
   }
   else if(direction === 'RIGHT') {
     if(!collision(x + velX, y)) {
       foodCollision(  x + velX, y);
-      personagem.move(direction);
+      personagem.moveDirection(direction);
     }
   }
   
@@ -117,6 +124,8 @@ function renderFood(coords) {
     // Coordenadas da comida
     let [xFood, yFood] = coords[i];
     
+    const radius = parseInt(BLOCK_SIZE / 2);
+
     // Desenha a comida
     fill(FOOD_COLOR)
     circle(xFood, yFood, BLOCK_SIZE);
@@ -164,5 +173,11 @@ function draw() {
     renderFood(food);
   }
 
+  fill(0);
+  // Imprime a Pontuação
+  text(`PONTOS = ${pontos}`, WIDTH - 200, 24);
+
+  // Movimentação da Cobrinha
   move();
+
 }
